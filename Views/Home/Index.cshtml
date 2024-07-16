@@ -1,0 +1,162 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<h1 class="mt-4">Static Navigation</h1>
+<ol class="breadcrumb mb-4">
+    <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+    <li class="breadcrumb-item active">Static Navigation</li>
+</ol>
+
+<div class="text-center">
+    <div class="card">
+        <div class="card-header">
+            Content Here
+        </div>
+        <div class="card-body">
+            <div id="context" class="row mt-5">
+                @*<canvas id="myCanvas"></canvas>*@
+                @* <button type="button" class="btn btn-primary" onclick="getPicture()">Create Picture</button> *@
+                <div id="echarts" style="width: 1200px; height: 400px;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<script defer type="text/javascript">
+    let d1;
+    let myChart = echarts.init(document.getElementById('echarts'));
+
+    const generate2x2Array = (x, y) => {
+        const result = [];
+        for (let i = 0; i < x; i++) {
+            for (let j = 0; j < y; j++) {
+                result.push([i, j]);
+            }
+        }
+        return result;
+    }
+
+    const generate1x1Array = (x) => {
+        return Array.from({ length: x }, (v, i) => i + 1);
+    }
+
+    option = {
+        grid: {
+            top: 10,
+            left: 10,
+            right: 10,
+            bottom: 10,
+            containLabel: true
+        },
+        xAxis: {
+            type: 'category',
+            data: generate1x1Array(12)
+        },
+        yAxis: {
+            type: 'category',
+            data: generate1x1Array(2)
+        },
+        series: [{
+            type: 'custom',
+            renderItem: function (params, api) {
+                //console.log(api)
+                var cellWidth = api.size([1, 0])[0] - 1;
+                var x = api.coord([api.value(0), api.value(1)])[0] - cellWidth / 2;
+                var y = api.coord([api.value(0), api.value(1)])[1] - cellWidth / 2;
+                var value = Math.floor(Math.random() * 100); // 生成一個隨機數據值
+                return {
+                    type: 'rect',
+                    shape: {
+                        x: x,
+                        y: y,
+                        width: cellWidth,
+                        height: cellWidth
+                    },
+                    style: {
+                        fill: '#ccc',
+                        text: value // 將隨機數據值設置為矩形的文本
+                    }
+                };
+            },
+            data: generate2x2Array(12,2)
+        }]
+    };
+
+    myChart.setOption(option);
+
+    myChart.on('click', function (params) {
+        console.log(params);
+    });
+
+    const getPicture = () => {
+        fetch('@Url.Action("GetRectangle", "Home")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            //console.log(response)
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json();
+        }).then((data) => {
+            console.log(data)
+            d1 = data;
+            let canvas = document.getElementById("myCanvas");
+            let ctx = canvas.getContext("2d");
+            canvas.height = document.getElementById('context').clientHeight - 16;
+            canvas.width = document.getElementById('context').clientWidth - 32;
+           
+            let minX = Math.min(...d1.map(x => x.minX));
+            let minY = Math.min(...d1.map(x => x.minY));
+            let width = data[0].maxX - data[0].minX;
+            let height = data[0].maxY - data[0].minY;
+
+            data.forEach((item, index, arr) => {
+                ctx.beginPath();
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = "#000000"
+                ctx.fillStyle = "#349617"
+                ctx.rect((item.minX - minX)*9, (item.minY - minY)*9, (item.maxX - item.minX) * 9, (item.maxY - item.minY) * 9);
+                ctx.fill()
+                ctx.stroke()
+
+                ctx.fillStyle = "#000000"
+                ctx.textAlign = "center"
+                ctx.fillText(item.pcsId, (item.minX - minX + width / 2) * 9, (item.minY - minY + height / 2) * 9);
+            });
+
+        }).then(() => {
+            
+        }).catch((e) => {
+            console.log(e)
+            alert('Error:', e);
+        });
+    }
+
+    const getPicture2 = () => {
+        fetch('@Url.Action("GetRectangle", "Home")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }).then((response) => {
+            //console.log(response)
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json();
+        }).then((data) => {
+            console.log(data)
+            data.forEach((item, index, arr) => {
+            });
+
+        }).then(() => {
+
+        }).catch((e) => {
+            console.log(e)
+            alert('Error:', e);
+        });
+    }
+</script>

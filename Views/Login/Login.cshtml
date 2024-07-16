@@ -1,0 +1,128 @@
+﻿@using dotnet60_example.Resources
+@model dotnet60_example.ViewModels.LoginVM
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment env
+@inject Microsoft.Extensions.Configuration.IConfiguration config
+@{
+    Layout = null;
+}
+<style>
+    .card-header {
+        border-radius: 1rem 1rem 0 0 !important;
+    }
+</style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>@config["SystemName"] - @ViewData["Title"]</title>
+    <link rel="icon" type="image/x-icon" href="~/assets/img/favicon.ico">
+    <link href="~/css/styles.css" rel="stylesheet" />
+    <script defer src="~/lib/font-awesome/js/all.min.js"></script>
+    <script defer src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script defer src="~/js/scripts.js"></script>
+</head>
+
+<body class="">
+    <div id="layoutAuthentication">
+        <div id="layoutAuthentication_header">
+            <header class="py-4 bg-dark text-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center flex-column">
+                        <div class="h1 fw-bold">@config["SystemName"]
+                            <environment include="Staging,Development">
+                                <font class="text-danger">@Language.TestEnvironment</font>
+                            </environment>
+                        </div>
+                        <div>@config["SystemEName"]</div>
+                    </div>
+                </div>
+            </header>
+        </div>
+        <div id="layoutAuthentication_content">
+            <main>
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-5 mt-5">
+                            <div class="card shadow-lg border-2 rounded-4 mt-5">
+                                <div class="card-header">
+                                    <h3 class="text-center font-weight-light my-4">@Language.Login</h3>
+                                </div>
+                                <div class="card-body">
+                                    <form id="loginForm" asp-controller="Login" asp-action="Login" method="post">
+                                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="UserId" class="form-control" placeholder="UserId" />
+                                            <label asp-for="UserId">@Language.UserId</label>
+                                        </div>
+                                        <div class="form-floating mb-3">
+                                            <input asp-for="Password" class="form-control" placeholder="Password" />
+                                            <label asp-for="Password">@Language.Password</label>
+                                        </div>
+                                        <div class="form-check mb-3">
+                                            <input class="form-check-input" id="inputRememberUserId" type="checkbox" />
+                                            <label class="form-check-label" for="inputRememberUserId">
+                                                Remember UserId
+                                            </label>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-center mt-4 mb-0">
+                                            @*<a class="small" href="#">Forgot Password?</a>*@
+                                            <button class="btn btn-primary" type="submit">@Language.Login</button>
+                                        </div>
+                                    </form>
+                                </div>
+                                @*<div class="card-footer text-center py-3">
+                                <div class="small"><a href="register.html">Need an account? Sign up!</a></div>
+                                </div>*@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+        <div id="layoutAuthentication_footer">
+            <footer class="py-4 bg-dark text-light mt-auto">
+                <div class="container-fluid px-4">
+                    <div class="d-flex align-items-center justify-content-between small">
+                        <div class="text-muted">Copyright &copy; @config["CompanyName"] 2023</div>
+                        <div>
+                            <span>@env.EnvironmentName</span>
+                            &mid;
+                            <span>@config["Version"]</span>
+                            &mid;
+                            <span>@config["AppSetting"]</span>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </div>
+</body>
+</html>
+<script defer type="text/javascript">
+    window.addEventListener('DOMContentLoaded', event => {
+        const inputRememberUserId = document.querySelector('#inputRememberUserId');
+        const userId = document.querySelector('#UserId');
+        userId.value = localStorage.getItem('userId');
+        inputRememberUserId.checked = localStorage.getItem('rememberUserId');
+        
+        if (userId.value) {
+            document.querySelector('#Password').focus()
+        }
+        else {
+            document.querySelector('#UserId').focus()
+        }
+
+        document.querySelector('button').addEventListener('click', (event) => {
+            if (inputRememberUserId.checked) {
+                localStorage.setItem('rememberUserId', inputRememberUserId.checked);
+                localStorage.setItem('userId', userId.value);
+            } else {
+                localStorage.clear();
+            }
+        })
+    });
+</script>

@@ -1,0 +1,48 @@
+﻿@using dotnet60_example.Resources
+@model IList<dotnet60_example.ViewModels.RoleVM>
+@inject dotnet60_example.Helpers.SessionHelper _sessionHelper
+
+<div class="card-header">
+    <i class="fas fa-table me-1"></i>
+    @Language.RoleList
+</div>
+<div class="card-body">
+    <table id="datatables" class="table table-bordered">
+        <thead>
+            <tr>
+                <th></th>
+                <th>@Language.RoleName</th>
+                <th>@Language.Description</th>
+                <th>@Language.IsActive</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vm in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="d-flex justify-content-evenly">
+                            @if (_sessionHelper.GetUserSession().HasPermission("Role", "Edit"))
+                            {
+                                <button class="btn btn-sm btn-info" data-bs-toggle="modal"
+                                        data-bs-target="#editModal" onclick="prepareEditModal('@vm.RoleId')">
+                                    @Language.Edit
+                                </button>
+                            }
+                            @if (_sessionHelper.GetUserSession().HasPermission("Role", "Delete"))
+                            {
+                                <button class="btn btn-sm btn-danger" onclick="confirmDelete('@vm.RoleId')">
+                                    @Language.Delete
+                                </button>
+                            }
+
+                        </div>
+                    </td>
+                    <td>@vm.RoleName</td>
+                    <td>@vm.Description</td>
+                    <td>@(vm.IsActive ? @Language.Yes : @Language.No)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

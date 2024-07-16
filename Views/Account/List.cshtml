@@ -1,0 +1,454 @@
+﻿@using dotnet60_example.Resources
+@model dotnet60_example.ViewModels.AccountSearchVM
+@inject dotnet60_example.Helpers.SessionHelper _sessionHelper
+@{
+}
+<h2 class="mt-2 fw-bold">@Language.AccountManagement</h2>
+
+<div class="card mb-4">
+    <div class="card-header">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        @Language.Search
+    </div>
+    <div class="card-body">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="row">
+            <div class="col-xl-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text bg-primary text-light" asp-for="UserId">@Language.UserId</label>
+                    <input asp-for="UserId" class="form-control" />
+                </div>
+            </div>
+            <div class="col-xl-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text bg-primary text-light" asp-for="UserName">@Language.UserName</label>
+                    <input asp-for="UserName" class="form-control" />
+                </div>
+            </div>
+            <div class="col-xl-3">
+                <div class="input-group mb-3">
+                    <label class="input-group-text bg-primary text-light" asp-for="IsActive">@Language.IsActive</label>
+                    <select asp-for="IsActive" class="form-select">
+                        <option value=""></option>
+                        <option value="true">@Language.Yes</option>
+                        <option value="false">@Language.No</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-xl-3">
+                <div class="d-flex mb-3 justify-content-evenly">
+                    <button class="btn btn-primary" type="button" onclick="search()">@Language.Search</button>
+                    @if (_sessionHelper.GetUserSession().HasPermission("Account", "Create"))
+                    {
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#createModal">
+                            @Language.Create
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="createModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Language.Create</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="createForm">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label for="userId" class="col-form-label">@Language.UserId:</label>
+                            <input type="text" name="userId" class="form-control">
+                        </div>
+                        <div class="col-6">
+                            <label for="userName" class="col-form-label">@Language.UserName:</label>
+                            <input type="text" name="userName" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label for="d2Name" class="col-form-label">@Language.D2Name:</label>
+                            <input type="text" name="d2Name" class="form-control" disabled>
+                        </div>
+                        <div class="col-6">
+                            <label for="d3Name" class="col-form-label">@Language.D3Name:</label>
+                            <input type="text" name="d3Name" class="form-control" disabled>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="createBtn" class="btn btn-primary d-none"
+                    onclick="create()">@Language.Save</button>
+                <button type="button" id="cancelCreateBtn" class="btn btn-secondary" data-bs-dismiss="modal">
+                    @Language.Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@Language.Edit</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editForm">
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="userId" class="col-form-label">@Language.UserId:</label>
+                            <input type="text" name="userId" class="form-control" disabled>
+                        </div>
+                        <div class="col-6">
+                            <label for="userName" class="col-form-label">@Language.UserName:</label>
+                            <input type="text" name="userName" class="form-control" disabled>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <label for="isActive" class="col-form-label">@Language.IsActive:</label>
+                            <select name="isActive" class="form-select">
+                                <option value="true">@Language.Yes</option>
+                                <option value="false">@Language.No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="text-center pt-3">
+                                <label class="col-form-label">@Language.UnSelected:</label>
+                            </div>
+                        </div>
+                        <div class="col-2"></div>
+                        <div class="col-sm-5">
+                            <div class="text-center pt-3">
+                                <label class="col-form-label">@Language.Selected:</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5">
+                            <select id="selectionLeft" class="form-control" size="10" multiple></select>
+                        </div>
+                        <div class="col-sm-2 d-flex flex-column justify-content-center">
+                            <button type="button" class="btn btn-light my-1" onclick="optionToRightAll()">
+                                <i class="fa fa-forward"></i>
+                            </button>
+                            <button type="button" class="btn btn-light my-1" onclick="optionToRight()">
+                                <i class="fa fa-chevron-right"></i>
+                            </button>
+                            <button type="button" class="btn btn-light my-1" onclick="optionToLeft()">
+                                <i class="fa fa-chevron-left"></i>
+                            </button>
+                            <button type="button" class="btn btn-light my-1" onclick="optionToLeftAll()">
+                                <i class="fa fa-backward "></i>
+                            </button>
+                        </div>
+                        <div class="col-5">
+                            <select id="selectionRight" class="form-control" size="10" multiple></select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="editBtn" class="btn btn-success" onclick="edit()">@Language.Save</button>
+                <button type="button" id="cancelEditBtn" class="btn btn-secondary" data-bs-dismiss="modal">
+                    @Language.Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="partialView"></div>
+
+<script defer type="text/javascript">
+    window.addEventListener('DOMContentLoaded', event => {
+        const userId = document.querySelector('#createModal input[name="userId"]');
+        const createModal = document.querySelector('#createModal');
+        const editModal = document.querySelector('#editModal');
+
+        userId.addEventListener('change', (event) => {
+            if (userId.value) {
+                searchHrAccount(userId.value);
+            }
+        });
+
+        createModal.addEventListener('hidden.bs.modal', function () {
+            document.querySelector("#createForm").reset()
+            document.querySelector('#createBtn').classList.add('d-none')
+        })
+
+        editModal.addEventListener('hidden.bs.modal', function () {
+            document.querySelector('#selectionLeft').innerHTML = ''
+            document.querySelector('#selectionRight').innerHTML = ''
+        })
+
+        search();
+    });
+
+    const search = () => {
+        fetch('@Url.Action("Search", "Account")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: document.querySelector('#UserId').value,
+                userName: document.querySelector('#UserName').value,
+                isActive: isActiveSelect(document.querySelector('#IsActive').value),
+            })
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.text();
+        }).then((data) => {
+            //console.log(data)
+            document.querySelector('#partialView').innerHTML = data;
+        }).then(() => {
+            const dt = new simpleDatatables.DataTable(document.querySelector('#datatables'), {
+                //scrollY: '350px',
+                perPage: 7
+            });
+        }).catch((e) => {
+            console.log(e)
+            alert(`${e.name}: ${e.message}`);
+        });
+    }
+
+    const searchHrAccount = (userId) => {
+        fetch('@Url.Action("SearchHrAccount", "Account")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userId)
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json();
+        }).then((data) => {
+            //console.log(data)
+            if (data.statusCode === 200) {
+                document.querySelector('#createModal input[name="userName"]').value = data.body.userName
+                document.querySelector('#createModal input[name="d2Name"]').value = data.body.d2Name
+                document.querySelector('#createBtn').classList.remove('d-none')
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: '查無資料',
+                    text: '查無該人員工號，請重新輸入。'
+                })
+            }
+        }).catch((e) => {
+            console.log(e)
+            alert(`${e.name}: ${e.message}`);
+        });
+    }
+
+    const create = () => {
+        const userId = document.querySelector('#createModal input[name="userId"]').value;
+        if (!userId) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'UserId cannot be empty.' })
+            return;
+        }
+
+        fetch('@Url.Action("Create", "Account")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: userId
+            })
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json();
+        }).then((data) => {
+            //console.log(data)
+            if (data.statusCode === 200) {
+                Swal.fire({ icon: 'success', title: 'Success', text: data.message })
+                    .then(() => { document.querySelector('#cancelCreateBtn').click() })
+                    .then(() => { search() });
+            } else {
+                Swal.fire({ icon: 'error', title: 'Error', text: data.message })
+                    .then(() => { document.querySelector("#createForm").reset() })
+            }
+        }).catch((e) => {
+            console.log(e)
+            alert(`${e.name}: ${e.message}`);
+        });
+    }
+
+    const confirmDelete = (userId) => {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Are you sure?',
+            text: `You won't be able to revert this!`,
+            confirmButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, delete it!',
+            showCancelButton: true,
+            cancelButtonColor: '#d33',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                deleteAccount(userId);
+            }
+        });
+    }
+
+    const deleteAccount = (userId) => {
+        fetch('@Url.Action("Delete", "Account")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userId)
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json();
+        }).then((data) => {
+            //console.log(data)
+            if (data.statusCode !== 200) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Error',
+                    text: data.message
+                })
+                return;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: data.message
+            }).then(() => {
+                search();
+            });
+        }).catch((e) => {
+            console.log(e)
+            alert(`${e.name}: ${e.message}`);
+        });
+    }
+
+    const prepareEditModal = (userId) => {
+
+        fetch('@Url.Action("GetAccount", "Account")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userId)
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json();
+        }).then((data) => {
+            //console.log(data)
+            if (data.statusCode === 200) {
+                document.querySelector('#editModal input[name="userId"]').value = data.body.account.userId
+                document.querySelector('#editModal input[name="userName"]').value = data.body.account.userName
+                document.querySelector('#editModal select[name="isActive"]').value = data.body.account.isActive
+                const selectionLeft = document.querySelector('#selectionLeft');
+                const selectionRight = document.querySelector('#selectionRight');
+                data.body.selectRoles.forEach((item) => {
+                    const option = new Option(item.description, item.roleId);
+                    option.disabled = !item.isActive
+                    selectionRight.add(option);
+                })
+
+                data.body.unselectRoles.forEach((item) => {
+                    const option = new Option(item.description, item.roleId);
+                    option.disabled = !item.isActive
+                    selectionLeft.add(option);
+                })
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message
+                })
+            }
+        }).catch((e) => {
+            console.log(e)
+            alert(`${e.name}: ${e.message}`);
+        });
+    }
+
+    const edit = () => {
+        const selectRoles = [...document.querySelector('#selectionRight').options].map(x => x.value)
+
+        fetch('@Url.Action("Edit", "Account")', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                userId: document.querySelector('#editModal input[name="userId"]').value,
+                isActive: isActiveSelect(document.querySelector('#editModal select[name="isActive"]').value),
+                roleIds: selectRoles
+            })
+        }).then((response) => {
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
+            return response.json();
+        }).then((data) => {
+            //console.log(data)
+            if (data.statusCode === 200) {
+                Swal.fire({ icon: 'success', title: 'Success', text: data.message })
+                    .then(() => { document.querySelector('#cancelEditBtn').click() })
+                    .then(() => { search() })
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message
+                })
+            }
+        }).catch((e) => {
+            console.log(e)
+            alert(`${e.name}: ${e.message}`);
+        });
+    }
+
+    const optionToRightAll = () => {
+        [...document.querySelector('#selectionLeft').options].forEach(x => {
+            if (!x.disabled) {
+                document.querySelector('#selectionRight').appendChild(x)
+            }
+        })
+    }
+
+    const optionToLeftAll = () => {
+        [...document.querySelector('#selectionRight').options].forEach(x => {
+            if (!x.disabled) {
+                document.querySelector('#selectionLeft').appendChild(x)
+            }
+        })
+    }
+
+    const optionToRight = () => {
+        [...document.querySelector('#selectionLeft').selectedOptions].forEach(x => {
+            document.querySelector('#selectionRight').appendChild(x)
+        })
+    }
+
+    const optionToLeft = () => {
+        [...document.querySelector('#selectionRight').selectedOptions].forEach(x => {
+            document.querySelector('#selectionLeft').appendChild(x)
+        })
+    }
+</script>

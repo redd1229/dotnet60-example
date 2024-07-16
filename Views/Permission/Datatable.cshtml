@@ -1,0 +1,49 @@
+﻿@using dotnet60_example.Resources
+@model IList<dotnet60_example.ViewModels.PermissionVM>
+@inject dotnet60_example.Helpers.SessionHelper _sessionHelper
+
+<div class="card-header">
+    <i class="fas fa-table me-1"></i>
+    @Language.PermissionList
+</div>
+<div class="card-body">
+    <table id="datatables" class="table table-bordered">
+        <thead>
+            <tr>
+                <th></th>
+                <th>ControllerName</th>
+                <th>ActionName</th>
+                <th>@Language.Description</th>
+                <th>@Language.IsActive</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vm in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="d-flex justify-content-evenly">
+                            @if (_sessionHelper.GetUserSession().HasPermission("Permission", "Edit"))
+                            {
+                                <button class="btn btn-sm btn-info" data-bs-toggle="modal"
+                                        data-bs-target="#editModal" onclick="prepareEditModal('@vm.PermissionId')">
+                                    @Language.Edit
+                                </button>
+                            }
+                            @if (_sessionHelper.GetUserSession().HasPermission("Permission", "Delete"))
+                            {
+                                <button class="btn btn-sm btn-danger" onclick="confirmDelete('@vm.PermissionId')">
+                                    @Language.Delete
+                                </button>
+                            }
+                        </div>
+                    </td>
+                    <td>@vm.ControllerName</td>
+                    <td>@vm.ActionName</td>
+                    <td>@vm.Description</td>
+                    <td>@(vm.IsActive ? @Language.Yes : @Language.No)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

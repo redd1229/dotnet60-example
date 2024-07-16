@@ -1,0 +1,65 @@
+{
+  "version": "1.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "moment.js@2.29.4",
+      "destination": "wwwroot/lib/moment.js/",
+      "files": [
+        "moment.min.js",
+        "moment.js"
+      ]
+    },
+    {
+      "library": "bootstrap@5.2.3",
+      "destination": "wwwroot/lib/bootstrap/dist/",
+      "files": [
+        "js/bootstrap.bundle.js",
+        "css/bootstrap.css",
+        "css/bootstrap.css.map",
+        "css/bootstrap.min.css",
+        "css/bootstrap.min.css.map",
+        "js/bootstrap.bundle.js.map",
+        "js/bootstrap.bundle.min.js",
+        "js/bootstrap.bundle.min.js.map"
+      ]
+    },
+    {
+      "library": "font-awesome@6.4.0",
+      "destination": "wwwroot/lib/font-awesome/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "simple-datatables@7.2.0",
+      "destination": "wwwroot/lib/simple-datatables/",
+      "files": [
+        "dist/style.css",
+        "dist/style.min.css",
+        "dist/umd/simple-datatables.js",
+        "dist/umd/simple-datatables.min.js"
+      ]
+    },
+    {
+      "library": "sweetalert2@11.7.3",
+      "destination": "wwwroot/lib/sweetalert2/"
+    },
+    {
+      "library": "echarts@5.4.2",
+      "destination": "wwwroot/lib/echarts/"
+    },
+    {
+      "library": "svg.js@3.1.2",
+      "destination": "wwwroot/lib/svg.js/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "@svgdotjs/svg.panzoom.js@2.1.2",
+      "destination": "wwwroot/lib/svg.js/svg.panzoom.js/"
+    },
+    {
+      "provider": "jsdelivr",
+      "library": "choices.js@10.2.0",
+      "destination": "wwwroot/lib/choices.js/"
+    }
+  ]
+}
